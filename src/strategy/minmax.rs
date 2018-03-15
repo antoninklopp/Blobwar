@@ -9,7 +9,10 @@ pub struct MinMax(pub u8);
 
 impl Strategy for MinMax {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
-        unimplemented!("TODO: implementer min max")
+        // profondeur de l'algorithme
+        let depth = self.0;
+        let (best_move, _) = compute_depth(depth, state, 1);
+        best_move
     }
 }
 
@@ -28,4 +31,43 @@ pub fn min_max_anytime(state: &Configuration) {
     for depth in 1..100 {
         movement.store(MinMax(depth).compute_next_move(state));
     }
+}
+
+//renvoie le meilleur mouvement et sa valeur.
+fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> (Option<Movement>, i8) {
+    // joueur == 1 si c'est notre joueur, -1 si c'est le joueur adverse
+
+    // println!("deth {}", depth);
+
+    let mut nouveau_joueur: i8 = 1;
+    if joueur == 1 {
+        nouveau_joueur = -1;
+    }
+
+    let best;
+    // Si on est arrivé au bout de la profondeur
+    if depth == 0 {
+        // Meme implementation que le greedy.
+        best = state
+            .movements()
+            .map(|m| (m, state.play(&m).value()))
+            .max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
+            .unwrap();
+    } else {
+        if state.movements().count() == 0 {
+            // On retourne le pire move
+            best = (Movement::Duplicate(0), -joueur * 100);
+        } else {
+            best = state.movements()
+            .map(|m| match compute_depth(depth - 1, &state.play(&m).clone(), nouveau_joueur){
+                (Some(_), y) => (m, y),
+                _ => (Movement::Duplicate(0), -joueur * 100)  // Trouver autre chose ici
+            })
+            .max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherce un max, sinon on cherche un min
+            .unwrap();
+        }
+    }
+
+    let (best_move, best_value) = best;
+    (Some(best_move), best_value)
 }
