@@ -11,7 +11,9 @@ impl Strategy for MinMax {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
         // profondeur de l'algorithme
         let depth = self.0;
-        let (best_move, _) = compute_depth(depth, state, 1);
+        // On let joueur à -1 comme ça, inversion directe
+        let (best_move, best_value) = compute_depth(depth, state, -1);
+        // println!("{}", best_value);
         best_move
     }
 }
@@ -48,26 +50,45 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> (Option<Moveme
     // Si on est arrivé au bout de la profondeur
     if depth == 0 {
         // Meme implementation que le greedy.
-        best = state
+        let recupere: Vec<(Movement, i8)> = state
             .movements()
             .map(|m| (m, state.play(&m).value()))
-            .max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
+            .collect();
+        // On véifie que l'iterateur ne soit pas vide
+        if recupere.clone().into_iter().count() == 0 {
+            best = (Movement::Duplicate(0), -joueur * 100);
+        } else {
+            best = recupere.clone().into_iter().max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
             .unwrap();
+        }
     } else {
         if state.movements().count() == 0 {
             // On retourne le pire move
             best = (Movement::Duplicate(0), -joueur * 100);
+        // println!("depth {}", depth);
         } else {
-            best = state.movements()
-            .map(|m| match compute_depth(depth - 1, &state.play(&m).clone(), nouveau_joueur){
-                (Some(_), y) => (m, y),
-                _ => (Movement::Duplicate(0), -joueur * 100)  // Trouver autre chose ici
-            })
-            .max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherce un max, sinon on cherche un min
-            .unwrap();
+            let recupere: Vec<(Movement, i8)> = state
+                .movements()
+                .map(
+                    |m| match compute_depth(depth - 1, &state.play(&m).clone(), nouveau_joueur) {
+                        (Some(_), y) => (m, y),
+                        _ => (Movement::Duplicate(0), -joueur * 100), // Trouver autre chose ici
+                    },
+                )
+                .collect();
+            // On véifie que l'iterateur ne soit pas vide
+            if recupere.clone().into_iter().count() == 0 {
+                best = (Movement::Duplicate(0), -joueur * 100);
+            } else {
+                best = recupere.clone().into_iter().max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
+                .unwrap();
+            }
         }
     }
-
     let (best_move, best_value) = best;
+    // println!(
+    //     "best move at depth {} joueur {} {}",
+    //     depth, joueur, best_value
+    // );
     (Some(best_move), best_value)
 }
