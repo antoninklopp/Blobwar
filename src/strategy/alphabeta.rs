@@ -28,6 +28,23 @@ impl fmt::Display for AlphaBeta {
 
 impl Strategy for AlphaBeta {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
-        unimplemented!("implementer alpha beta")
+        // profondeur de l'algorithme
+        let depth = self.0;
+        // On let joueur à -1 comme ça, inversion directe
+        let (best_move, best_value) = alpha_beta(depth, state, -1, -100, 100);
+        // println!("{}", best_value);
+        best_move
     }
+}
+
+fn alpha_beta(
+    depth: u8,
+    state: &Configuration,
+    joueur: i8,
+    alpha: i8,
+    beta: i8,
+) -> (Option<Movement>, i8) {
+    if depth == 0 {}
+
+    (Some(Movement::Duplicate(0)), 0)
 }
