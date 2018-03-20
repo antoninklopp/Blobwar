@@ -40,75 +40,61 @@ fn alpha_beta(
     depth: u8,
     state: &Configuration,
     joueur: i8,
-    alpha: i8,
-    beta: i8,
+    mut alpha: i8,
+    mut beta: i8,
 ) -> (Option<Movement>, i8) {
     let mut nouveau_joueur: i8 = 1;
     if joueur == 1 {
         nouveau_joueur = -1;
     }
 
-    let best;
+    let mut best: (Option<Movement>, i8);
     if depth == 0 {
-        let recupere: Vec<(Movement, i8)> = state
+        best = state
             .movements()
-            .map(|m| (m, state.play(&m).value()))
-            .collect();
-        // On véifie que l'iterateur ne soit pas vide
-        if recupere.clone().into_iter().count() == 0 {
-            best = (Movement::Duplicate(0), -joueur * 100);
-        } else {
-            best = recupere.clone().into_iter().max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
+            .map(|m| (Some(m), state.play(&m).value()))
+            .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
+            .max_by_key(|&(_, val)| joueur * val)
             .unwrap();
-        }
+        best
     } else {
         // On met le pire mouvement.
-        best = (Some(Movement::Duplicate(0), -100));
+        best = (None, -100);
 
         if state.movements().count() == 0 {
             // On retourne le pire move
-            best = (Movement::Duplicate(0), -joueur * 100);
+            best = (None, -joueur * 100);
         // println!("depth {}", depth);
         } else {
-            let meilleurScore = -100;
-            let recupere: Vec<(Movement, i8)> = state
+            let mut meilleurScore: i8 = -100;
+            let recupere = state
                 .movements()
-                .map(|m| {
-                    match alpha_beta(
+                .map(|m| {alpha_beta(
                         depth - 1,
                         &state.play(&m).clone(),
                         nouveau_joueur,
                         -beta,
                         -alpha,
-                    ) {
-                        // -alphabeta dans l'algorithme
-                        (Some(_), y) => (m, -y),
-                        _ => (Movement::Duplicate(0), -joueur * 100), // Trouver autre chose ici
-                    }
+                    )
                 })
+                .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
+                .filter(|&(_, value)| value > meilleurScore)
                 .map(|(mov, value)| {
-                    if (value > meilleurScore) {
-                        meilleurScore = value;
-                        if meilleurScore > alpha {
-                            alpha = meilleurScore;
-                            if alpha >= beta {
-                                // Ici on doit retourner le meilleur Score.
-                                // Faire un for?
-                                alpha = meilleurScore
-                            }
-                        }
-                    }
+                    meilleurScore = value; // On update la variable meilleurScore
+                    (mov, value)
                 })
-                .collect();
-            // On véifie que l'iterateur ne soit pas vide
-            if recupere.clone().into_iter().count() == 0 {
-                best = (Movement::Duplicate(0), -joueur * 100);
-            } else {
-                best = recupere.clone().into_iter().max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
-                .unwrap();
-            }
-        }
-    }
+                .filter(|&(_, value)| value > alpha)
+                .map(|(mov, value)| {
+                    alpha = meilleurScore; // On update la variable alpha
+                    (mov, value)
+                })
+                .find(|&(_, _)| alpha >= beta); // On s'arrete si alpha >= beta.
 
-    (Some(Movement::Duplicate(0)), 0)
+            best = match recupere {
+                Some((mov, value)) => (mov, value),
+                _ => (None, 0),
+            };
+        }
+        best
+    }
 }
