@@ -66,8 +66,7 @@ fn alpha_beta(
             best = (None, -joueur * 100);
         // println!("depth {}", depth);
         } else {
-            let mut meilleurScore: i8 = -100;
-            let recupere = state
+            let mut recupere2 = state
                 .movements()
                 .map(|m| {alpha_beta(
                         depth - 1,
@@ -78,17 +77,34 @@ fn alpha_beta(
                     )
                 })
                 .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
-                .filter(|&(_, value)| value > meilleurScore)
-                .map(|(mov, value)| {
-                    meilleurScore = value; // On update la variable meilleurScore
-                    (mov, value)
-                })
-                .filter(|&(_, value)| value > alpha)
-                .map(|(mov, value)| {
-                    alpha = meilleurScore; // On update la variable alpha
-                    (mov, value)
-                })
-                .find(|&(_, _)| alpha >= beta); // On s'arrete si alpha >= beta.
+                .scan((-100, 100, (None, -100)), |state, (mov, value)|{ // Dans l'ordre, alpha, beta, meilleurScore
+                    let mut trouve:bool = false;
+                    let bestValue = state.2;
+                    if value > bestValue.1 {
+                        state.2 = (mov, value);
+                        if value > state.0 {
+                            state.0 = value;
+                            if state.0 >= state.1 {
+                                trouve = true;
+                                // return
+                            }
+                        }
+                    }
+                    Some((state.2, trouve)) // Retourne une opion sur la valeur
+                });
+
+            let taille = recupere2.by_ref().count();
+
+            let recupere = recupere2
+                .enumerate()
+                .find(|&(i, ((_, _), trouve))| trouve == true || (i == taille - 1)) // On prend le premier à true ou le dernier
+                .map(|(_, ((mov, value), _))| (mov, value));
+
+            // let mut recupere_clone = recupere.cloned();
+            //
+            // let result_find = recupere_clone.find(|&((_, _), trouve)| trouve==true);
+            //
+            // .filter(|&(mov, _)| !mov.is_none()).next(); // On s'arrete si alpha >= beta.
 
             best = match recupere {
                 Some((mov, value)) => (mov, value),

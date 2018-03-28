@@ -8,17 +8,3 @@ pub trait Strategy: fmt::Display {
     /// None if no move is possible.
     fn compute_next_move(&mut self, configuration: &Configuration) -> Option<Movement>;
 }
-
-pub mod human;
-pub use self::human::Human;
-pub mod network;
-pub use self::network::NetworkPlayer;
-pub mod greedy;
-pub use self::greedy::Greedy;
-pub mod minmax;
-pub use self::minmax::{min_max_anytime, MinMax};
-pub mod alphabeta;
-pub use self::alphabeta::{alpha_beta_anytime, AlphaBeta};
-pub mod iterative;
-pub use self::iterative::IterativeDeepening;
-pub use self::iterative::IterativeStrategy;
