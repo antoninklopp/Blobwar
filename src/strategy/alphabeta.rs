@@ -30,6 +30,7 @@ impl Strategy for AlphaBeta {
         let depth = self.0;
         // On let joueur à -1 comme ça, inversion directe
         let (best_move, best_value) = alpha_beta(depth, state, -1, -100, 100).unwrap();
+        print!("{:?}", best_value);
         // println!("{}", best_value);
         best_move
     }
@@ -40,8 +41,8 @@ fn alpha_beta(
     depth: u8,
     state: &Configuration,
     joueur: i8,
-    mut alpha: i8,
-    mut beta: i8,
+    alpha: i8,
+    beta: i8,
 ) -> Option<(Option<Movement>, i8)> {
     let mut nouveau_joueur: i8 = 1;
     if joueur == 1 {
@@ -65,6 +66,7 @@ fn alpha_beta(
             best = Some((None, -joueur * 100));
         // println!("depth {}", depth);
         } else {
+            print!("Je suis ici\n");
             let mut recupere2 = state
                 .movements()
                 .map( |m| match alpha_beta(depth - 1, &state.play(&m).clone(), nouveau_joueur, -beta, -alpha) {
@@ -72,6 +74,7 @@ fn alpha_beta(
                     _ => (None, -joueur * 100) // Trouver autre chose ici
                 })
                 .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
+                .peekable() // TODO : Solution? 
                 .scan((-100, 100, (None, -100)), |state, (mov, value)|{ // Dans l'ordre, alpha, beta, meilleurScore
                     let mut trouve:bool = false;
                     let best_value = state.2;
@@ -88,12 +91,24 @@ fn alpha_beta(
                     Some((state.2, trouve)) // Retourne une opion sur la valeur
                 });
 
-            let taille = recupere2.by_ref().count();
+            let taille = recupere2.by_ref().count(); //TODO: PROBLEME ICI : On consomme le vecteur
 
-            let best = recupere2
+            print!("taille{:?}\n", taille);
+
+            let recupere = recupere2
                 .enumerate()
-                .find(|&(i, ((_, _), trouve))| trouve == true || (i == taille - 1)) // On prend le premier à true ou le dernier
+                .inspect(|&(i, _)| println!("{:?} {:?}", taille, i))
+                .find(|&(i, ((_, _), trouve))| (trouve || (i == taille - 2))) // On prend le premier à true ou le dernier
                 .map(|(_, ((mov, value), _))| (mov, value));
+
+            best = recupere;
+
+            if !best.is_none() {
+                let (_, value) = best.unwrap();
+                print!("Meilleur move{:?}\n", value);
+            } else {
+                println!("Je suis null");
+            }
 
             // let mut recupere_clone = recupere.cloned();
             //
