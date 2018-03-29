@@ -1,7 +1,7 @@
 //! rust alpha - beta implementation for the blobwar game.
 #![feature(conservative_impl_trait)]
 #![feature(range_contains)]
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 
 extern crate serde;
 #[macro_use]

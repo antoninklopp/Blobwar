@@ -12,7 +12,8 @@ impl Strategy for MinMax {
         // profondeur de l'algorithme
         let depth = self.0;
         // On let joueur à -1 comme ça, inversion directe
-        let (best_move, best_value) = compute_depth(depth, state, -1);
+        let (best_move, _) = compute_depth(depth, state, -1).unwrap();
+        println!("{:?}", best_move);
         // println!("{}", best_value);
         best_move
     }
@@ -36,7 +37,7 @@ pub fn min_max_anytime(state: &Configuration) {
 }
 
 //renvoie le meilleur mouvement et sa valeur.
-fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> (Option<Movement>, i8) {
+fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option<Movement>, i8)> {
     // joueur == 1 si c'est notre joueur, -1 si c'est le joueur adverse
 
     // println!("deth {}", depth);
@@ -46,7 +47,7 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> (Option<Moveme
         nouveau_joueur = -1;
     }
 
-    let best: (Option<Movement>, i8);
+    let best: Option<(Option<Movement>, i8)>;
     // Si on est arrivé au bout de la profondeur
     if depth == 0 {
         // Meme implementation que le greedy.
@@ -54,15 +55,18 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> (Option<Moveme
             .movements()
             .map(|m| (Some(m), state.play(&m).value()))
             .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
-            .max_by_key(|&(_, val)| joueur * val)
-            .unwrap();
+            .max_by_key(|&(_, val)| joueur * val);
     } else {
         best = state
             .movements()
-            .map( |m| compute_depth(depth - 1, &state.play(&m).clone(), nouveau_joueur))
+            .map(
+                |m| match compute_depth(depth - 1, &state.play(&m).clone(), nouveau_joueur) {
+                    Some((Some(_), y)) => (Some(m), y),
+                    _ => (None, -joueur * 100), // Trouver autre chose ici
+                },
+            )
             .filter(|&(mov, _)| !mov.is_none())
             .max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
-            .unwrap();
     }
     best
 }
