@@ -65,9 +65,10 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option
             .map(
                 |m| match compute_depth(depth - 1, &state.play(&m).clone(), -joueur) {
                     Some((Some(_), y)) => (Some(m), y),
-                    _ => (None, joueur * 100), // Trouver autre chose ici
+                    _ => (None, 0), // Trouver autre chose ici
                 },
             )
+            .filter(|&(mov, _)| !mov.is_none())
             .max_by_key(|&(_, val)| joueur * val); // Si joueur == 1, on cherche un max, sinon on cherche un min
     }
     best

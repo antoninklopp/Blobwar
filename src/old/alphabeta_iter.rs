@@ -36,7 +36,7 @@ impl Strategy for AlphaBeta {
         }
         // On vérifie qu'il y ait au moins un mouvement à jouer
         let (best_move, best_value) = match alpha_beta(depth, state, tour, -100, 100) {
-            Some((mov, y)) => (mov, y),
+            Some((mov, y)) => (mov, -y),
             _ => (None, 0),
         };
         print!("{:?}", best_value);
@@ -72,7 +72,7 @@ fn alpha_beta(
         } else {
             let mut recupere2 = state
                 .movements()
-                .map( |m| match alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
+                .map( |m| match -alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
                     Some((Some(_), y)) => (Some(m), y),
                     _ => (None, -joueur * 100) // Trouver autre chose ici
                 })

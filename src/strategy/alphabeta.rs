@@ -50,11 +50,36 @@ fn alpha_beta(
     depth: u8,
     state: &Configuration,
     joueur: i8,
-    alpha: i8,
+    mut alpha: i8,
     beta: i8,
 ) -> Option<(Option<Movement>, i8)> {
     let best: Option<(Option<Movement>, i8)>;
+    let mut tmp_best: (Option<Movement>, i8) = (None, -100 * joueur);
 
-        best
+    for m in state.movements() {
+        let mov = match alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
+            Some((Some(m1), y)) => (Some(m1), -y),
+            _ => (None, -joueur * 100),
+        };
+        if mov.0.is_none() {
+            continue;
+        }
+        if mov.1 > tmp_best.1 {
+            tmp_best.1 = mov.1;
+            if tmp_best.1 > alpha {
+                alpha = tmp_best.1;
+                if alpha >= beta {
+                    break;
+                }
+            }
+        }
     }
+
+    if tmp_best.0.is_none() {
+        best = None;
+    } else {
+        best = Some(tmp_best)
+    }
+
+    best
 }
