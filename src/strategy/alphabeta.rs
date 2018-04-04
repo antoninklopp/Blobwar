@@ -28,8 +28,17 @@ impl Strategy for AlphaBeta {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
         // profondeur de l'algorithme
         let depth = self.0;
-        // On let joueur à -1 comme ça, inversion directe
-        let (best_move, best_value) = alpha_beta(depth, state, 1, -100, 100).unwrap();
+        let tour: i8;
+        if (depth as u16 as i8) % 2 == 1 {
+            tour = -1;
+        } else {
+            tour = 1;
+        }
+        // On vérifie qu'il y ait au moins un mouvement à jouer
+        let (best_move, best_value) = match alpha_beta(depth, state, tour, -100, 100) {
+            Some((mov, y)) => (mov, y),
+            _ => (None, 0),
+        };
         print!("{:?}", best_value);
         // println!("{}", best_value);
         best_move
@@ -44,12 +53,8 @@ fn alpha_beta(
     alpha: i8,
     beta: i8,
 ) -> Option<(Option<Movement>, i8)> {
-    let mut nouveau_joueur: i8 = 1;
-    if joueur == 1 {
-        nouveau_joueur = -1;
-    }
+    let best: Option<(Option<Movement>, i8)>;
 
-    let mut best: Option<(Option<Movement>, i8)>;
     if depth == 0 {
         best = state
             .movements()
@@ -59,7 +64,6 @@ fn alpha_beta(
         best
     } else {
         // On met le pire mouvement.
-        best = Some((None, -100));
 
         if state.movements().count() == 0 {
             // On retourne le pire move
@@ -68,7 +72,7 @@ fn alpha_beta(
         } else {
             let mut recupere2 = state
                 .movements()
-                .map( |m| match alpha_beta(depth - 1, &state.play(&m).clone(), nouveau_joueur, -beta, -alpha) {
+                .map( |m| match alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
                     Some((Some(_), y)) => (Some(m), y),
                     _ => (None, -joueur * 100) // Trouver autre chose ici
                 })

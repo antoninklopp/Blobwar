@@ -58,18 +58,7 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option
         best = state
             .movements()
             .map(|m| (Some(m), state.play(&m).value()))
-            // .inspect(|&(_, val)| println!("joueur {:?} valeur {:?} depth {:?}", joueur, val, depth))
-            // .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
             .max_by_key(|&(_, val)| joueur * val);
-    // let best2 = best.clone();
-    // if !best2.is_none() {
-    //     println!(
-    //         "MEILLEUR : valeur {:?} {:?} {:?}\n",
-    //         best2.unwrap().1,
-    //         best2.unwrap().0,
-    //         depth
-    //     );
-    // }
     } else {
         best = state
             .movements()
@@ -79,18 +68,7 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option
                     _ => (None, joueur * 100), // Trouver autre chose ici
                 },
             )
-            // .inspect(|&(_, val)| println!("joueur {:?} valeur {:?} depth {:?}", joueur, val, depth))
             .max_by_key(|&(_, val)| joueur * val); // Si joueur == 1, on cherche un max, sinon on cherche un min
-
-        // let best2 = best.clone();
-        // if !best2.is_none() {
-        //     println!(
-        //         "MEILLEUR : valeur {:?} {:?} {:?}\n",
-        //         best2.unwrap().1,
-        //         best2.unwrap().0,
-        //         depth
-        //     );
-        // }
     }
     best
 }
