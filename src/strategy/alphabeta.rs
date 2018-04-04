@@ -9,10 +9,13 @@ use shmem::AtomicMove;
 /// This function is intended to be called from blobwar_iterative_deepening.
 pub fn alpha_beta_anytime(state: &Configuration) {
     let mut movement = AtomicMove::connect().expect("failed connecting to shmem");
+    let mut d = 0;
     for depth in 1..100 {
+        d += 1;
         let chosen_movement = AlphaBeta(depth).compute_next_move(state);
         movement.store(chosen_movement);
     }
+    println!("deniere depth {:?}", d);
 }
 
 /// Alpha - Beta algorithm with given maximum number of recursions.
@@ -32,14 +35,14 @@ impl Strategy for AlphaBeta {
         if (depth as u16 as i8) % 2 == 1 {
             tour = -1;
         } else {
-            tour = 1;
+            tour = 1; // 1
         }
         // On vérifie qu'il y ait au moins un mouvement à jouer
-        let (best_move, best_value) = match alpha_beta(depth, state, tour, -100, 100) {
-            Some((mov, y)) => (mov, y),
-            _ => (None, 0),
-        };
-        print!("{:?}", best_value);
+        let mov = alpha_beta(depth, state, tour, -100, 100);
+        let mut best_move = None;
+        if !mov.is_none() {
+            best_move = mov.unwrap().0;
+        }
         // println!("{}", best_value);
         best_move
     }
@@ -54,32 +57,38 @@ fn alpha_beta(
     beta: i8,
 ) -> Option<(Option<Movement>, i8)> {
     let best: Option<(Option<Movement>, i8)>;
-    let mut tmp_best: (Option<Movement>, i8) = (None, -100 * joueur);
+    let mut tmp_best: (Option<Movement>, i8) = (None, -100);
 
-    for m in state.movements() {
-        let mov = match alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
-            Some((Some(m1), y)) => (Some(m1), -y),
-            _ => (None, -joueur * 100),
-        };
-        if mov.0.is_none() {
-            continue;
-        }
-        if mov.1 > tmp_best.1 {
-            tmp_best.1 = mov.1;
-            if tmp_best.1 > alpha {
-                alpha = tmp_best.1;
-                if alpha >= beta {
-                    break;
+    if depth == 0 {
+        best = state
+            .movements()
+            .map(|m| (Some(m), state.play(&m).value()))
+            .max_by_key(|&(_, val)| joueur * val);
+    } else {
+        for m in state.movements() {
+            let mov = match alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
+                Some((Some(_), y)) => (Some(m), -y),
+                _ => (None, -joueur * 100),
+            };
+            if mov.0.is_none() {
+                continue;
+            }
+            if mov.1 > tmp_best.1 {
+                tmp_best = mov;
+                if tmp_best.1 > alpha {
+                    alpha = tmp_best.1;
+                    if alpha >= beta {
+                        break;
+                    }
                 }
             }
         }
-    }
 
-    if tmp_best.0.is_none() {
-        best = None;
-    } else {
-        best = Some(tmp_best)
+        if tmp_best.0.is_none() {
+            best = None;
+        } else {
+            best = Some(tmp_best);
+        }
     }
-
     best
 }
