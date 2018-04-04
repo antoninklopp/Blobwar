@@ -12,7 +12,16 @@ impl Strategy for MinMax {
         // profondeur de l'algorithme
         let depth = self.0;
         // On let joueur à -1 comme ça, inversion directe
-        let (best_move, _) = compute_depth(depth, state, -1).unwrap();
+        let tour: i8;
+        if (depth as u16 as i8) % 2 == 1 {
+            tour = -1;
+        } else {
+            tour = 1;
+        }
+        let (best_move, _) = match compute_depth(depth, state, tour) {
+            Some((mov, y)) => (mov, y),
+            _ => (None, 0),
+        };
         println!("{:?}", best_move);
         // println!("{}", best_value);
         best_move
@@ -42,11 +51,6 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option
 
     // println!("deth {}", depth);
 
-    let mut nouveau_joueur: i8 = 1;
-    if joueur == 1 {
-        nouveau_joueur = -1;
-    }
-
     let best: Option<(Option<Movement>, i8)>;
     // Si on est arrivé au bout de la profondeur
     if depth == 0 {
@@ -54,19 +58,39 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option
         best = state
             .movements()
             .map(|m| (Some(m), state.play(&m).value()))
-            .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
+            // .inspect(|&(_, val)| println!("joueur {:?} valeur {:?} depth {:?}", joueur, val, depth))
+            // .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
             .max_by_key(|&(_, val)| joueur * val);
+    // let best2 = best.clone();
+    // if !best2.is_none() {
+    //     println!(
+    //         "MEILLEUR : valeur {:?} {:?} {:?}\n",
+    //         best2.unwrap().1,
+    //         best2.unwrap().0,
+    //         depth
+    //     );
+    // }
     } else {
         best = state
             .movements()
             .map(
-                |m| match compute_depth(depth - 1, &state.play(&m).clone(), nouveau_joueur) {
+                |m| match compute_depth(depth - 1, &state.play(&m).clone(), -joueur) {
                     Some((Some(_), y)) => (Some(m), y),
-                    _ => (None, -joueur * 100), // Trouver autre chose ici
+                    _ => (None, joueur * 100), // Trouver autre chose ici
                 },
             )
-            .filter(|&(mov, _)| !mov.is_none())
-            .max_by_key(|&(_, val)| joueur * val) // Si joueur == 1, on cherche un max, sinon on cherche un min
+            // .inspect(|&(_, val)| println!("joueur {:?} valeur {:?} depth {:?}", joueur, val, depth))
+            .max_by_key(|&(_, val)| joueur * val); // Si joueur == 1, on cherche un max, sinon on cherche un min
+
+        // let best2 = best.clone();
+        // if !best2.is_none() {
+        //     println!(
+        //         "MEILLEUR : valeur {:?} {:?} {:?}\n",
+        //         best2.unwrap().1,
+        //         best2.unwrap().0,
+        //         depth
+        //     );
+        // }
     }
     best
 }
