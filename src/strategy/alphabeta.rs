@@ -55,58 +55,6 @@ fn alpha_beta(
 ) -> Option<(Option<Movement>, i8)> {
     let best: Option<(Option<Movement>, i8)>;
 
-    if depth == 0 {
-        best = state
-            .movements()
-            .map(|m| (Some(m), state.play(&m).value()))
-            .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
-            .max_by_key(|&(_, val)| joueur * val);
-        best
-    } else {
-        // On met le pire mouvement.
-
-        if state.movements().count() == 0 {
-            // On retourne le pire move
-            best = Some((None, -joueur * 100));
-        // println!("depth {}", depth);
-        } else {
-            let mut recupere2 = state
-                .movements()
-                .map( |m| match alpha_beta(depth - 1, &state.play(&m).clone(), -joueur, -beta, -alpha) {
-                    Some((Some(_), y)) => (Some(m), y),
-                    _ => (None, -joueur * 100) // Trouver autre chose ici
-                })
-                .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
-                .peekable() // TODO : Solution?
-                .scan((alpha, beta, (None, -100)), |state, (mov, value)|{ // Dans l'ordre, alpha, beta, meilleurScore
-                    let mut trouve:bool = false;
-                    let best_value = state.2;
-                    if value > best_value.1 {
-                        state.2 = (mov, value);
-                        if value > state.0 {
-                            state.0 = value;
-                            if state.0 >= state.1 {
-                                trouve = true;
-                                // return
-                            }
-                        }
-                    }
-                    Some((state.2, trouve)) // Retourne une opion sur la valeur
-                });
-
-            let iter_debut = recupere2
-                .by_ref()
-                .take_while(|&((_, _), trouve)| !trouve)
-                .last()
-                .map(|((mov, value), _)| (mov, value));
-
-            let premier_true = recupere2.next();
-            if premier_true.is_none() {
-                best = iter_debut;
-            } else {
-                best = premier_true.map(|((mov, value), _)| (mov, value));
-            }
-        }
         best
     }
 }
