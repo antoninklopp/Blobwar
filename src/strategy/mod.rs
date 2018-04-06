@@ -21,6 +21,8 @@ pub mod alphabeta;
 pub use self::alphabeta::{alpha_beta_anytime, AlphaBeta};
 pub mod mix_and_twist;
 pub use self::mix_and_twist::MixAndTwist;
+pub mod deep_play;
+pub use self::deep_play::DeepPlay;
 pub mod random;
 pub use self::random::{random_anytime, Random};
 pub mod iterative;
