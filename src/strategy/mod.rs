@@ -20,7 +20,7 @@ pub use self::minmax::{min_max_anytime, MinMax};
 pub mod alphabeta;
 pub use self::alphabeta::{alpha_beta_anytime, AlphaBeta};
 pub mod mix_and_twist;
-pub use self::mix_and_twist::{Mix_and_Twist};
+pub use self::mix_and_twist::MixAndTwist;
 pub mod random;
 pub use self::random::{random_anytime, Random};
 pub mod iterative;

@@ -23,7 +23,7 @@ pub struct Random(pub u8, pub f32);
 
 impl fmt::Display for Random {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Alpha - Beta (max level: {})", self.0)
+        write!(f, "Random (max level: {})", self.0)
     }
 }
 
@@ -65,44 +65,45 @@ pub fn random(
         best = state
             .movements()
             .enumerate()
-            .filter(|&(i, _)| (i as f32) % (1.0 / skip).round() == 1.0)
+            .filter(|&(i, _)| (i as f32) % skip.round() == 0.0)
             .map(|(_, x)| x)
             .map(|m| (Some(m), state.play(&m).value()))
             .max_by_key(|&(_, val)| joueur * val);
     } else {
-        let mut i: f32 = -1.0;
+        let mut i: f32 = 0.0;
         for m in state.movements() {
             i += 1.0;
-            if i % ((1.0 / skip) - 1.0).round() != 0.0 {
+            if i % skip.round() != 0.0 {
                 // println!("{:?}", i);
+
                 continue;
-            }
-            // println!("{:?}", i);
-            let mov = match random(
-                depth - 1,
-                &state.play(&m).clone(),
-                -joueur,
-                -beta,
-                -alpha,
-                skip / 2.0,
-            ) {
-                Some((Some(_), y)) => (Some(m), -y),
-                _ => (None, -joueur * 100),
-            };
-            if mov.0.is_none() {
-                continue;
-            }
-            if mov.1 > tmp_best.1 {
-                tmp_best = mov;
-                if tmp_best.1 > alpha {
-                    alpha = tmp_best.1;
-                    if alpha >= beta {
-                        break;
+            } else {
+                // println!("{:?}", i);
+                let mov = match random(
+                    depth - 1,
+                    &state.play(&m).clone(),
+                    -joueur,
+                    -beta,
+                    -alpha,
+                    skip + (depth as f32) / 3.0, // 2.4325 // 2.4725
+                ) {
+                    Some((Some(_), y)) => (Some(m), -y),
+                    _ => (None, -joueur * 100),
+                };
+                if mov.0.is_none() {
+                    continue;
+                }
+                if mov.1 > tmp_best.1 {
+                    tmp_best = mov;
+                    if tmp_best.1 > alpha {
+                        alpha = tmp_best.1;
+                        if alpha >= beta {
+                            break;
+                        }
                     }
                 }
             }
         }
-
         if tmp_best.0.is_none() {
             best = None;
         } else {

@@ -7,15 +7,15 @@ use strategy::alphabeta::alpha_beta;
 use strategy::random::random;
 
 /// Alpha - Beta algorithm with given maximum number of recursions.
-pub struct Mix_and_Twist(pub u8, pub u8, pub f32);
+pub struct MixAndTwist(pub u8, pub u8, pub f32);
 
-impl fmt::Display for Mix_and_Twist {
+impl fmt::Display for MixAndTwist {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Mix_and_Twist (max level: {})", self.0)
     }
 }
 
-impl Strategy for Mix_and_Twist {
+impl Strategy for MixAndTwist {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
         let depth_alphabeta: u8 = self.0;
         let depth_random = self.1;
@@ -35,10 +35,11 @@ impl Strategy for Mix_and_Twist {
             tour_random = 1; // 1
         }
 
-        let alphabeta_mov: Option<(Option<Movement>, i8)> =
-            alpha_beta(depth_alphabeta, state, tour_alphabeta, -100, 100);
         let random_mov: Option<(Option<Movement>, i8)> =
             random(depth_random, state, tour_random, -100, 100, percentage);
+        let alphabeta_mov: Option<(Option<Movement>, i8)> =
+            alpha_beta(depth_alphabeta, state, tour_alphabeta, -100, 100);
+
         let v = vec![alphabeta_mov, random_mov];
 
         let best_move_tmp = v.into_iter()
