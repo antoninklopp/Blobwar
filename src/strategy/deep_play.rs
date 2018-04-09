@@ -3,6 +3,7 @@ use super::Strategy;
 use configuration::{Configuration, Movement};
 use shmem::AtomicMove;
 use rand::{thread_rng, Rng};
+use rayon::prelude::*;
 
 /// Deep Play algorithme with the number of game play for each play at time t
 pub struct DeepPlay(pub u16);
@@ -121,9 +122,11 @@ fn result_partie(state: &Configuration) -> bool {
 
 pub fn deep_play(nb_game: u16, state: &Configuration) -> Option<Movement> {
     let best: Option<(Option<Movement>, i32)>;
+    let best_tmp: Vec<Movement>;
     let result: Option<Movement>;
-    best = state
-        .movements()
+    best_tmp = state.movements().collect();
+    best = best_tmp
+        .into_par_iter()
         .map(|mov| (Some(mov), play_randomly(state, mov, nb_game)))
         .max_by_key(|&(_, val)| val);
 
