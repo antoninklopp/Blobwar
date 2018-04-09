@@ -11,6 +11,7 @@ extern crate serde_json;
 extern crate itertools;
 extern crate libc;
 extern crate nix;
+extern crate rand;
 extern crate term;
 
 pub(crate) mod positions;

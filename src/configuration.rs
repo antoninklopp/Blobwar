@@ -95,6 +95,11 @@ impl<'a> Configuration<'a> {
         }
     }
 
+    // Renvoie true si le premier joueur a gagné, false sinon
+    pub fn winner(&self) -> bool {
+        self.blobs[0].len() > self.blobs[1].len()
+    }
+
     /// Return if given movement is correct for current configuration.
     pub fn check_move(&self, movement: &Movement) -> bool {
         let destination = match *movement {
@@ -153,7 +158,7 @@ impl<'a> Configuration<'a> {
     }
 
     /// Return true if no empty space remains or someone died.
-    fn game_over(&self) -> bool {
+    pub fn game_over(&self) -> bool {
         self.blobs[0].is_empty() || self.blobs[1].is_empty()
             || self.blobs[0]
                 .union_with(self.blobs[1])
