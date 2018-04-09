@@ -3,6 +3,7 @@ use std::fmt;
 use super::Strategy;
 use configuration::{Configuration, Movement};
 use shmem::AtomicMove;
+use rayon::prelude::*;
 
 /// Min-Max algorithm with a given recursion depth.
 pub struct MinMax(pub u8);
@@ -55,13 +56,17 @@ fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option
     // Si on est arrivé au bout de la profondeur
     if depth == 0 {
         // Meme implementation que le greedy.
-        best = state
-            .movements()
+        let best_tmp: Vec<Movement>;
+        best_tmp = state.movements().collect();
+        best = best_tmp
+            .into_par_iter()
             .map(|m| (Some(m), state.play(&m).value()))
             .max_by_key(|&(_, val)| joueur * val);
     } else {
-        best = state
-            .movements()
+        let best_tmp: Vec<Movement>;
+        best_tmp = state.movements().collect();
+        best = best_tmp
+            .into_par_iter()
             .map(
                 |m| match compute_depth(depth - 1, &state.play(&m).clone(), -joueur) {
                     Some((Some(_), y)) => (Some(m), y),
