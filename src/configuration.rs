@@ -97,7 +97,7 @@ impl<'a> Configuration<'a> {
 
     // Renvoie true si le premier joueur a gagné, false sinon
     pub fn winner(&self) -> bool {
-        // println!("Blob joueurs 1 {:?}", self.blobs[0].len());
+        //println!("Blob joueurs 1 {:?}", self.blobs[0].len());
         // println!("Blob joueurs 2 {:?}", self.blobs[1].len());
         self.blobs[0].len() > self.blobs[1].len()
     }

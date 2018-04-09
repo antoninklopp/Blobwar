@@ -9,6 +9,6 @@ fn main() {
     //let board = Board::load("x").expect("failed loading board");
     let board = Default::default();
     let mut game = Configuration::new(&board);
-    game.battle(DeepPlay(100), Greedy());
+    game.battle(DeepPlay(3000), Greedy());
     // game.battle(Greedy(), Random(12, 1.0));
 }
