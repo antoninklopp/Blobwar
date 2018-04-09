@@ -2,6 +2,7 @@
 use std::fmt;
 use super::Strategy;
 use configuration::{Configuration, Movement};
+use rayon::prelude::*;
 
 /// Dumb algorithm.
 /// Amongst all possible movements return the one which yields the configuration with the best
@@ -20,8 +21,9 @@ impl Strategy for Greedy {
         // Regarder le max de pions récupérés
 
         // Variable du mouvement du joueur
-        let (config, _) = state
-            .movements()
+        let tmp_best: Vec<Movement> = state.movements().collect();
+        let (config, _) = tmp_best
+            .into_par_iter()
             .map(|m| (m, state.play(&m).value()))
             .max_by_key(|&(_, val)| val)
             .unwrap();
