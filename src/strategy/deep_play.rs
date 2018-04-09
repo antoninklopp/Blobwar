@@ -58,7 +58,7 @@ fn play_randomly(state: &Configuration, mov: Movement, nb_game: u8) -> i8 {
             value += 1;
         }
     }
-    println!("Nombre gagnées {:?}", value);
+    // println!("Nombre gagnées {:?} jouées {:?}", value, nb_game);
     value
 }
 
@@ -70,7 +70,7 @@ fn result_partie(state: &Configuration) -> bool {
     let mut valeur_retour = false;
     if state.game_over() {
         valeur_retour = state.winner();
-        println!("gameover {:?}", valeur_retour);
+    // println!("gameover {:?}", valeur_retour);
     } else {
         let nb_mov_possibles = state.movements().count();
         // create a random index generation
@@ -89,6 +89,7 @@ fn result_partie(state: &Configuration) -> bool {
         }
         if selected_index != 1000 {
             // selected the move randomly
+            // println!("random choisi {:?}", selected_index);
             let mut selected_mov_tmp = state.movements().nth(selected_index);
             let mut i = 0;
             while selected_mov_tmp.is_none() && i < nb_mov_possibles {
@@ -104,9 +105,11 @@ fn result_partie(state: &Configuration) -> bool {
             } else {
                 let selected_mov = selected_mov_tmp.unwrap();
                 // Normalement pas de probleme de panic à l'unwrap
-
+                // println!("Mouvement choisi {:?}", selected_mov);
                 valeur_retour = result_partie(&state.play(&selected_mov).clone());
             }
+        } else {
+            valeur_retour = state.winner();
         }
     }
     valeur_retour
