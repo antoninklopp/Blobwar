@@ -2,6 +2,7 @@ use std::fmt;
 use super::Strategy;
 use configuration::{Configuration, Movement};
 use shmem::AtomicMove;
+use rayon::prelude::*;
 
 /// Anytime alpha beta algorithm.
 /// Any time algorithms will compute until a deadline is hit and the process is killed.
@@ -60,8 +61,10 @@ pub fn alpha_beta(
     let mut tmp_best: (Option<Movement>, i8) = (None, -100);
 
     if depth == 0 {
-        best = state
-            .movements()
+        let best_tmp: Vec<Movement>;
+        best_tmp = state.movements().collect();
+        best = best_tmp
+            .into_par_iter()
             .map(|m| (Some(m), state.play(&m).value()))
             .max_by_key(|&(_, val)| joueur * val);
     } else {
