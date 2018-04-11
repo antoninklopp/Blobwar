@@ -104,8 +104,6 @@ pub fn deep_play(nb_game: u16, state: &Configuration) -> Option<(Option<Movement
         .max_by_key(|&(_, val)| val)
         .map(|(mov, val)| (mov, val as i8));
 
-    // println!("Choisi {:?}", best);
-
     if best.is_none() {
         result = None;
     } else {

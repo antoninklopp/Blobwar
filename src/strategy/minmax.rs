@@ -50,8 +50,6 @@ pub fn min_max_anytime(state: &Configuration) {
 fn compute_depth(depth: u8, state: &Configuration, joueur: i8) -> Option<(Option<Movement>, i8)> {
     // joueur == 1 si c'est notre joueur, -1 si c'est le joueur adverse
 
-    // println!("deth {}", depth);
-
     let best: Option<(Option<Movement>, i8)>;
     // Si on est arrivé au bout de la profondeur
     if depth == 0 {
