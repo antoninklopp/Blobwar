@@ -77,7 +77,6 @@ fn alpha_beta(
                     _ => (None, -joueur * 100) // Trouver autre chose ici
                 })
                 .filter(|&(mov, _)| !mov.is_none()) // On vérifie que la valeur n'est pas nulle.
-                .peekable() // TODO : Solution?
                 .scan((alpha, beta, (None, -100)), |state, (mov, value)|{ // Dans l'ordre, alpha, beta, meilleurScore
                     let mut trouve:bool = false;
                     let best_value = state.2;

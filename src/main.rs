@@ -16,7 +16,7 @@ fn main() {
     //game.battle(DeepPlay(10000), Greedy());
     game.battle(
         IterativeDeepening::new(IterativeStrategy::MixAndTwist),
-        DeepPlay(7500),
+        DeepPlay(10000),
     );
     // game.battle(Greedy(), Random(10, 1.0));
 }

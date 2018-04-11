@@ -30,37 +30,13 @@ fn play_randomly(state: &Configuration, mov: Movement, nb_game: u16) -> i32 {
     // play nb_game games
     for _ in 1..nb_game {
         let mut new_state: &Configuration = &state.play(&mov).clone();
-        // let mut game_is_on = true;
-        // // play randomly until the game finished
-        // while game_is_on {
-        //     // count the number of nomve possible
-        //     let nb_mov_possibles = new_state.movements().count();
-        //     // create a random index generation
-        //     let mut selected_index = 0;
-        //     let mut rng = thread_rng();
-        //     if rng.gen() {
-        //         // random bool
-        //         // random generation from 0 to nb_mov_possibles-1
-        //         selected_index = rng.gen_range(0, nb_mov_possibles);
-        //     }
-        //     // selected the move randomly
-        //     let selected_mov = new_state.movements().nth(selected_index).unwrap();
-        //     // Normalement pas de probleme de panic à l'unwrap
-        //
-        //     new_state = &new_state.play(&selected_mov).clone();
-        //
-        //     // new_state.play(&selected_mov);
-        //     // if movements_possible == None {
-        //     //     game_is_on = false;
-        //     game_is_on = !new_state.game_over();
-        // }
 
         if result_partie(new_state) {
             // println!("value {:?}", value);
             value += 1;
         }
     }
-    // println!("Nombre gagnées {:?} jouées {:?}", value, nb_game);
+    println!("Nombre gagnées {:?} jouées {:?}", value, nb_game);
     value
 }
 
