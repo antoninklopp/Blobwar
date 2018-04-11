@@ -2,7 +2,7 @@ extern crate blobwar;
 use std::env;
 use blobwar::board::Board;
 use blobwar::configuration::Configuration;
-use blobwar::strategy::{alpha_beta_anytime, min_max_anytime};
+use blobwar::strategy::{alpha_beta_anytime, min_max_anytime, mix_and_twist_anytime};
 
 fn main() {
     let config_string = env::args()
@@ -19,6 +19,7 @@ fn main() {
     {
         0 => min_max_anytime(&configuration),
         1 => alpha_beta_anytime(&configuration),
+        2 => mix_and_twist_anytime(&configuration),
         _ => panic!("invalid strategy number"),
     }
 }

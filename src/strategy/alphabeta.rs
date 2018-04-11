@@ -32,6 +32,7 @@ impl Strategy for AlphaBeta {
     fn compute_next_move(&mut self, state: &Configuration) -> Option<Movement> {
         // profondeur de l'algorithme
         let depth = self.0;
+        println!("{}", depth);
         let tour: i8;
         if (depth as u16 as i8) % 2 == 1 {
             tour = -1;
@@ -82,7 +83,7 @@ pub fn alpha_beta(
                     alpha = tmp_best.1;
                     if alpha >= beta {
                         break;
-                    }
+                    };
                 }
             }
         }

@@ -16,6 +16,8 @@ pub enum IterativeStrategy {
     MinMax,
     /// AlphaBeta algorithm
     AlphaBeta,
+    /// MixAndTwist algorithm
+    MixAndTwist,
 }
 
 /// Anytime algorithms strategies. Implemented in another process.

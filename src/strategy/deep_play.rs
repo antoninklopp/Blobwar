@@ -21,7 +21,7 @@ impl Strategy for DeepPlay {
         // On vérifie qu'il y ait au moins un mouvement à jouer
         let mov = deep_play(nb_game, state);
         // println!("{}", best_value);
-        mov
+        mov.unwrap().0
     }
 }
 
@@ -60,7 +60,7 @@ fn play_randomly(state: &Configuration, mov: Movement, nb_game: u16) -> i32 {
             value += 1;
         }
     }
-    println!("Nombre gagnées {:?} jouées {:?}", value, nb_game);
+    // println!("Nombre gagnées {:?} jouées {:?}", value, nb_game);
     value
 }
 
@@ -120,22 +120,23 @@ fn result_partie(state: &Configuration) -> bool {
     valeur_retour
 }
 
-pub fn deep_play(nb_game: u16, state: &Configuration) -> Option<Movement> {
-    let best: Option<(Option<Movement>, i32)>;
+pub fn deep_play(nb_game: u16, state: &Configuration) -> Option<(Option<Movement>, i8)> {
+    let best: Option<(Option<Movement>, i8)>;
     let best_tmp: Vec<Movement>;
-    let result: Option<Movement>;
+    let result: Option<(Option<Movement>, i8)>;
     best_tmp = state.movements().collect();
     best = best_tmp
         .into_par_iter()
         .map(|mov| (Some(mov), play_randomly(state, mov, nb_game)))
-        .max_by_key(|&(_, val)| val);
+        .max_by_key(|&(_, val)| val)
+        .map(|(mov, val)| (mov, val as i8));
 
-    println!("Choisi {:?}", best);
+    // println!("Choisi {:?}", best);
 
     if best.is_none() {
         result = None;
     } else {
-        result = best.unwrap().0;
+        result = best;
     }
     result
 }

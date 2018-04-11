@@ -12,7 +12,7 @@ pub fn random_anytime(state: &Configuration) {
     let mut d = 0;
     for depth in 1..100 {
         d += 1;
-        let chosen_movement = Random(depth, 0.25).compute_next_move(state);
+        let chosen_movement = Random(depth, 1.0).compute_next_move(state);
         movement.store(chosen_movement);
     }
     println!("deniere depth {:?}", d);
@@ -85,7 +85,8 @@ pub fn random(
                     -joueur,
                     -beta,
                     -alpha,
-                    skip + (depth as f32) / 3.0, // 2.4325 // 2.4725
+                    // skip + (depth as f32) / 2.0, // 2.4325 // 2.4725
+                    skip + 3.7325,
                 ) {
                     Some((Some(_), y)) => (Some(m), -y),
                     _ => (None, -joueur * 100),
