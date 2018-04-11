@@ -53,22 +53,20 @@ fn result_partie(state: &Configuration) -> bool {
         let nb_mov_possibles = state.movements().count();
         // create a random index generation
         let mut selected_index = 0; // Impossible de mettre -1, on met une trop grande valeur?
-        let mut index_OK = true;
+        let mut index_ok = true;
         let mut rng = thread_rng();
         if rng.gen() {
             // random bool
             // random generation from 0 to nb_mov_possibles-1
             // println!("mouvements possibles {:?}", nb_mov_possibles);
             if nb_mov_possibles == 0 {
-                // S'il n'y a plus assez de mouvements possibles, on renvoie la valeur de la partie
-                index_OK = false;
+                index_ok = false;
             } else {
                 selected_index = rng.gen_range(0, nb_mov_possibles);
             }
         }
-        if index_OK {
+        if index_ok {
             // selected the move randomly
-            // println!("random choisi {:?}", selected_index);
             let mut selected_mov_tmp = state.movements().nth(selected_index);
             let mut i = 0;
             while selected_mov_tmp.is_none() && i < nb_mov_possibles {
@@ -80,8 +78,7 @@ fn result_partie(state: &Configuration) -> bool {
 
             if selected_mov_tmp.is_none() {
                 // On ne peut pas aller plus bas, on dir qu'on s'arrete ici
-                valeur_retour = state.winner();
-            // valeur_retour = false;
+                valeur_retour = false;
             } else {
                 let selected_mov = selected_mov_tmp.unwrap();
                 // Normalement pas de probleme de panic à l'unwrap
